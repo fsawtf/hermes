@@ -1,8 +1,8 @@
 <template>
-  <div class="home">
-    <aside class="home-sidemenu">
+  <div class="iden">
+    <div class="iden__top" :style="{backgroundImage:backgroundImg}">
       <svg
-        class="home-logo"
+        class="iden__logo"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
         width="88.106"
@@ -33,80 +33,59 @@
           ></path>
         </g>
       </svg>
-      <div class="home-sidemenu__banner">
-        <h1 class="home-sidemenu__title is-poppins">Recepção Virtual</h1>
-      </div>
-      <div class="home-sidemenu__content">
-        <p class="home-sidemenu__text">
-          Seja bem vindo a recepção virtual Hermes, para prosseguir você só
-          precisa selecionar a empresa a qual tem algo a tratar
-          <span
-            class="home-sidemenu__indicator"
-          >Selecione ></span>
+      <!-- <img class="iden__title" src="img/drummond.png"> -->
+    </div>
+    <div class="iden__content">
+      <div class="iden__sidepanel">
+        <p class="iden__sidepanel-text">
+          Você possui um convite em QR Code ou algum ID de acesso para
+          entrada?
         </p>
+        <span class="iden__sidepanel-warning">Selecione &gt;</span>
       </div>
-    </aside>
-    <main class="home-content">
-      <div class="home-content__screen animate" :style="{backgroundImage:backgroundImg}">
-        <!-- OPTIONS -->
-        <div class="home-panel">
-          <app-panel @loadPanel="loadPanel" v-for="panel in panels" :key="panel._id" :data="panel"></app-panel>
-        </div>
-      </div>
-    </main>
+      <!-- <transition name="up" mode="out-in"> -->
+      <router-view></router-view>
+      <!-- </transition> -->
+    </div>
+    <a href @click.prevent="goBack" class="iden__back-btn">&lt; Voltar</a>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import Panel from "@/components/Panel.vue";
-
 export default {
-  name: "home",
+  name: "iden",
   data() {
     return {
-      panels: [],
       backgroundImg: ""
     };
   },
   created() {
-    fetch("http://localhost:3333/api/v1/companies")
-      .then(response => {
-        return response;
-      })
-      .then(data => {
-        return data.json();
-      })
-      .then(data => {
-        this.panels = data;
-      })
-      .then(data => {
-        this.backgroundImg = `url(img/${this.panels[0].background})`;
-      });
+    this.$store.commit("setCurrentPage", this.$options.name);
+    this.backgroundImg = this.$store.getters.getPageBackground;
   },
   methods: {
-    loadPanel({ id, backgroundImg }) {
-      this.backgroundImg = backgroundImg;
-      let panels = document.querySelectorAll(".home-panel__option");
-      if (!isNaN(id)) {
-        for (var i = 0; i < panels.length; i++) {
-          this.$children[i].active = true;
-          //compare the Ids
-          if (panels[i].id != id) {
-            this.$children[i].active = false;
-          }
-        }
-      }
-    },
-    addActive: elem => {
-      elem.classList.add("active");
-    },
-    removeActive: elem => {
-      elem.classList.remove("active");
+    goBack() {
+      this.$router.go(-1);
     }
-  },
-  components: {
-    appPanel: Panel
   }
 };
 </script>
+<style>
+.slide-leave {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.up-enter-active {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+</style>

@@ -1,25 +1,43 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Home from './views/Home.vue'
+import Vue from "vue";
+import Router from "vue-router";
+import Home from "./views/Home.vue";
 
-Vue.use(Router)
+// Lazy loading components
+const Iden = resolve => {
+  require.ensure(
+    ["./views/Identification.vue"],
+    () => {
+      resolve(require("./views/Identification.vue"));
+    },
+    "iden"
+  );
+};
+
+const Path = resolve => {
+  require.ensure(
+    ["./components/Path.vue"],
+    () => {
+      resolve(require("./components/Path.vue"));
+    },
+    "iden"
+  );
+};
+
+Vue.use(Router);
 
 export default new Router({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
-      name: 'home',
+      path: "/",
+      name: "home",
       component: Home
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+      path: "/iden",
+      components: { default: Iden },
+      children: [{ path: "", name: "path", component: Path }]
     }
   ]
-})
+});
